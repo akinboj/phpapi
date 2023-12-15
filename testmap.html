@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <title>OpenStreetMap with Google Maps v3 API</title>
+        <style type="text/css">
+            html, body, #map {
+                height: 100%;
+                margin: 0;
+                padding: 0;
+            }
+        </style>
+    </head>
+    <body>
+        <div id="map"></div>
+ 
+        <script type="text/javascript" src="http://maps.googleapis.com/maps/api/js?sensor=false"></script>
+        <script src="http://www.openlayers.org/api/OpenLayers.js"></script>
+		<script type="text/javascript">
+            var element = document.getElementById("map");
+ 
+            /*
+            Build list of map types.
+            You can also use var mapTypeIds = ["roadmap", "satellite", "hybrid", "terrain", "OSM"]
+            but static lists sucks when google updates the default list of map types.
+            */
+            var mapTypeIds = [];
+            for(var type in google.maps.MapTypeId) {
+                mapTypeIds.push(google.maps.MapTypeId[type]);
+            }
+            mapTypeIds.push("OSM");
+ 
+            var map = new google.maps.Map(element, {
+                center: new google.maps.LatLng(-37.805792000, 144.997848000),
+                zoom: 18,
+                mapTypeId: "OSM",
+                mapTypeControlOptions: {
+                    mapTypeIds: mapTypeIds
+                }
+            });
+ 
+            
+			var contentString = 'Anderson, Victoria<br>Anderson is a locality in Victoria, Australia. The roundabout which the locality is centralised around has been named the Anderson Roundabout which is all the town is thought of today.</br>';
+			var infowindow = new google.maps.InfoWindow({
+			content: contentString
+			});
+			
+			
+			var marker = new google.maps.Marker({
+			position: map.center,
+			map: map,
+			draggable:false,
+			icon: 'https://maps.gstatic.com/mapfiles/ms2/micons/man.png',
+			animation: google.maps.Animation.DROP
+			});
+			
+			interval = setInterval(function() { toggleBounce() }, 1000);
+
+			function toggleBounce() {
+			if (marker.getVisible()) {
+			marker.setVisible(false);
+			} else {
+			marker.setVisible(true);
+			}
+			}
+			
+			
+			<!--google.maps.event.addListener(marker, 'click', toggleBounce);-->
+			
+			function toggleBounce() {
+
+			if (marker.getAnimation() != null) {
+			marker.setAnimation(null);
+			} else {
+			marker.setAnimation(google.maps.Animation.BOUNCE);
+			}
+			}
+			
+			google.maps.event.addListener(marker, 'click', function() {
+			infowindow.open(map,marker);
+			});
+			
+			
+			map.mapTypes.set("OSM", new google.maps.ImageMapType({
+                getTileUrl: function(coord, zoom) {
+                    return "http://tile.openstreetmap.org/" + zoom + "/" + coord.x + "/" + coord.y + ".png";
+                },
+                tileSize: new google.maps.Size(256, 256),
+                name: "OpenStreetMap",
+                maxZoom: 18
+            }));
+        </script>
+    </body>
+</html>
